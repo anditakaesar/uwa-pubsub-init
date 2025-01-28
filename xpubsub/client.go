@@ -267,17 +267,15 @@ func (c *PubSubClient) CreateTopicAndSubscriptions(ctx context.Context, topicSpe
 		endTime := time.Since(startTime)
 		slog.Info(fmt.Sprintf("==== Creating Topics Done: %s ====", endTime))
 	}(start)
-	slog.Info("==== Creating Topics ====")
 
 	for _, topicSpec := range topicSpecs {
-		slog.Info(fmt.Sprintf("creating topic: %s with %d subscribers", topicSpec.Name, len(topicSpec.Subscriptions)))
 		topic := c.client.Topic(topicSpec.Name)
 		exists, err := topic.Exists(ctx)
 		if err != nil {
 			return err
 		}
 		if !exists {
-			slog.Info("topic not exist, creating...")
+			slog.Info(fmt.Sprintf("topic not exist, creating: %s", topicSpec.Name))
 			topic, err = c.client.CreateTopic(ctx, topicSpec.Name)
 			if err != nil {
 				return err
@@ -285,14 +283,13 @@ func (c *PubSubClient) CreateTopicAndSubscriptions(ctx context.Context, topicSpe
 		}
 
 		for _, subsSpec := range topicSpec.Subscriptions {
-			slog.Info(fmt.Sprintf("creating subscription: %s", subsSpec))
 			subs := c.client.Subscription(subsSpec)
 			exists, err := subs.Exists(ctx)
 			if err != nil {
 				return err
 			}
 			if !exists {
-				slog.Info("subscription not exist, creating...")
+				slog.Info(fmt.Sprintf("subscription not exist, creating: %s", subsSpec))
 				_, err = c.client.CreateSubscription(ctx, subsSpec, pubsub.SubscriptionConfig{
 					Topic:       topic,
 					AckDeadline: 20 * time.Second,
