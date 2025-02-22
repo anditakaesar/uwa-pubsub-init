@@ -68,4 +68,4 @@ docker compose up -d
 
 # License
 
-MIT
+GPL-3
